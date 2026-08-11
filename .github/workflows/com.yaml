@@ -12,6 +12,14 @@ jobs:
       - name: Get source code
         uses: actions/checkout@v4
 
+      - name: cache maven dependencies
+        uses: action/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+              ${{ runner.os }}-maven-
+
       - name: Build Order Service
         run: |
           cd order
