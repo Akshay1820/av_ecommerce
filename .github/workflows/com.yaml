@@ -2,25 +2,24 @@ name: Ecommerce Pipeline
 
 on:
   pull_request:
-    types: opened
+    types: [opened]
 
 jobs:
-  pipeline started:
+  pipeline_started:
     runs-on: ubuntu-latest
 
     steps:
       - name: Get source code
         uses: actions/checkout@v4
 
-      - name: cache maven dependencies
-        uses: action/cache@v4
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-              ${{ runner.os }}-maven-
+            ${{ runner.os }}-maven-
 
       - name: Build Order Service
-        run: |
-          cd order
-          mvn clean compile
+        working-directory: order
+        run: mvn clean compile
