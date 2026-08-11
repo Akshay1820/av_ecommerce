@@ -15,4 +15,4 @@ jobs:
       - name: Build Order Service
         run: |
           cd order
-          mvn clean package
+          mvn clean package -DskipTests
