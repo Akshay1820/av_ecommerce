@@ -1,0 +1,134 @@
+1. First we have created a spring boot application
+
+2. Created multiple models like User,Product,Order,CartItem etc. Along with model we have created respected controllers,services,
+    and repositories.
+
+3. Adding multiple endpoints for our e-commerce application.
+
+Date:- 12/05/2026
+4. Once the application is running correctly its time to Containerised our Spring Boot Application.
+
+5. Instead of writing a docker file manually to create docker image, we are using "maven plugin"
+
+    Why maven plugin over Docker File?
+        Less setup
+        Layer optimization
+        Faster for beginners
+
+    Spring Boot use Cloud Native Buildpacks:-
+          Builds your JAR
+          Uses Paketo Buildpacks
+          Creates optimized Docker layers
+          Produces a runnable container image
+
+
+    Command to run:-
+         ./mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=<docker hub user name>/<image_name>"
+        ./mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=akshayvaidya18/ecom-application"
+
+
+6.
+We are using Postgress database now as we how to scale our application and dont want to lose our data when applicatin stops
+    a. Adding postgress dependencies configuring it in yaml file
+    b. Running postgress container in docker
+        docker run -d --name db-cont -e POSTGRES_PASSWORD=akshay postgres:14
+                             {container_name}   {env_variable}     {image_name}
+
+    c. now we have to run pgadmin as a docker container, pg admin is nothing but web dashboard use to manage postgres database.
+        docker run -d --name pgadmin -e PGADMIN_DEFAULT_EMAIL=user@domain.com -e PGADMIN_DEFAULT_PASSWORD=SuperSecret dpage/pgadmin4
+
+    d. so now we have two containers
+        1. db-cont:- postgress database
+        2. pgadmin:- postgress dashboard
+        But these two containers are running differently so they cannot communicate with each other
+
+        docker exec -it pgadmin ping db-cont
+        which means if we execute above command that is trying to accessing db-cont container from pgadmin we cant do that
+
+    e. so to resolve this issue we can keep these two containers in single network.
+
+
+    f. I will create new network named "ecom-network"
+       1. docker network create ecom-network
+       2. After creating network I will stop the two containers and delete them and again execute the run command but this time specifying the network.
+             docker run -d --name db-cont --network ecom-network -e POSTGRES_PASSWORD=akshay postgres:14
+             docker run -d --name pgadmin --network ecom-network -e PGADMIN_DEFAULT_EMAIL=user@domain.com -e PGADMIN_DEFAULT_PASSWORD=SuperSecret dpage/pgadmin4
+
+
+    g. Now we have both the containers running, the problem we can face in future as our application grows is we have to hit multiple command for multiple containers
+       and it is difficult to manage all the containers. so to solve this issue we can use a tool called docker-compose
+
+    h. We have created a docker-compose file and added two services postgress and pgadmin
+        after running docker compose up -d command we can loggin to pg admin by localhost:5050
+        we have to create a database that we have mentioned in application.properties file
+
+
+    Problems with Monolithic Architecture
+        Difficult to Implement Changes:- If we want to change one module, it may affect other modules as well
+
+        Lack of Scalability:- If a specific module is large amount of traffic, we cant scale a specific module,like increasing instance, increasing RAM
+
+        Long-term Commitment to a Single Technology Stack
+
+        Application Complexity and its Effect on Development and Deployment:- As application grows it slows down the development, increase chances of bugs
+
+        Slowing Down of IDEs
+
+        Increase Application Start time
+
+        Large Project Size
+
+
+    Principle of Microservices:-
+
+        Single Responsibility:- Each microservices have one job.
+
+        Independence:- Change in one service not affect other services. They operate independently
+
+        Decentralization
+
+        Failure Isolation:- If one service fail, the rest of application should continue to function as it is.
+
+        Continuous Delivery/Deployment:- Releases can be happen more frequently.
+
+
+    So now we moving our monolithic application to microservice architecture
+
+
+    So mostly we are having 3 main services
+
+        Service     Ports
+        User        8081
+        Product     8082
+        Order       8083
+
+7.
+So as we have 3 different application running on 3 different ports, with 3 different database. So for timebeing we have used h2 database for all 3 applications.
+And as 3 application were running on 3 different windows. So no we are unified all 3 application in on window, by keeping all three projects in single project.
+
+
+8.
+After running all 3 services in unified way. We are now using Postgress database. for that we have to move our docker-compose file from our monolithic architecture.
+adding dependency of postgress in all services .pom file and changing the configuration of application.yaml.
+
+
+9.
+Now we are using different database for different service so for user service we are using mongo db, for that we have to install mongodb server and mongodb compass
+after installing both we have to add mongo db dependency at pom.xml, In Repository we have to replace JPARepository to MongoRepository.
+Also need to change configuration at application.yaml file.
+
+
+10.
+As we know to have mongodb database in local machine is very space consuming, so thats why we are connecting to mongodb database through cloud
+using Mongodb Atlas
+
+Mongo db cluster connection string
+mongodb+srv://akshuvaidya1_db_user:KaUOPOBScGJVre8Y@user-data.rtiosyd.mongodb.net/
+
+
+Postgress Neon connection string:-
+postgresql://ep-crimson-fog-aowhi3gb-pooler.c-2.ap-southeast-1.aws.neon.tech/product?sslmode=require&channel_binding=require
+
+username:- neondb_owner
+password:- npg_ynUliCVxwz38@
+

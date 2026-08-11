@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: order
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orderdb
+    username: ${ORDER_DB_USERNAME}
+    password: ${ORDER_DB_PASSWORD}
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+product:
+  service:
+    url: http://localhost:8083/api/product
+
+server:
+  port: ${ORDER_PORT}
