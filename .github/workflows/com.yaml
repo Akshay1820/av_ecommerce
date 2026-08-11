@@ -1,0 +1,13 @@
+name: Ecommerce Pipeline
+
+on:
+  pull_request:
+    types: opened
+
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: PR created
+        run: echo "PR is created and pipeline is started"
