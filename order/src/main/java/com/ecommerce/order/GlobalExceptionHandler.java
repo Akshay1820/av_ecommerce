@@ -28,4 +28,10 @@ public class GlobalExceptionHandler {
         ErrorResponse err = new ErrorResponse(409, "Not Found", ex.getMessage());
         return new ResponseEntity<>(err, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(CartIsEmptyException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(CartIsEmptyException ex, WebRequest req) {
+        ErrorResponse err = new ErrorResponse(409, "Cart is empty", ex.getMessage());
+        return new ResponseEntity<>(err, HttpStatus.CONFLICT);
+    }
 }

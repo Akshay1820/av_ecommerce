@@ -4,6 +4,7 @@ package com.ecommerce.order.service;
 import com.ecommerce.order.dto.OrderItemDTO;
 import com.ecommerce.order.dto.OrderResponse;
 import com.ecommerce.order.dto.UserResponse;
+import com.ecommerce.order.exceptions.CartIsEmptyException;
 import com.ecommerce.order.model.CartItem;
 import com.ecommerce.order.model.OrderStatus;
 import com.ecommerce.order.model.Order;
@@ -25,13 +26,17 @@ public class OrderService {
 
     public OrderResponse createOrder(String userId) {
 
-        UserResponse userResponse=validateUser(userId);
+        validateUser(userId);
 
         // Validate for cart items
         List<CartItem> cartItemList = cartItemService.getCart(userId);
 
-        // Calculate total price
+        if(cartItemList.isEmpty()){
+            //cart is empty, cannot create order
+            throw new CartIsEmptyException("Cart is Empty");
+        }
 
+        // Calculate total price
         BigDecimal totalAmount=cartItemList.stream()
                 .map(CartItem::getPrice)
                 .reduce(BigDecimal.ZERO,BigDecimal::add);
@@ -42,15 +47,24 @@ public class OrderService {
         order.setTotalAmount(totalAmount);
         order.setOrderStatus(OrderStatus.CONFIRMED);
 
-        List<OrderItem> orderItem = cartItemList.stream()
+        List<OrderItem> orderItems = cartItemList.stream()
                 .map(cartItem -> cartItemToOrderItem(cartItem,order))
                 .toList();
 
-        order.setOrderItems(orderItem);
+        order.setOrderItems(orderItems);
         orderRepository.save(order);
 
         //Clear the cart
         cartItemService.clearCartForUser(userId);
+
+        //Deduct the stock quantity of the product
+        for (OrderItem item : orderItems) {
+            try {
+                apiService.clearStockQuantity(Long.parseLong(item.getProductId()), item.getQuantity());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
         return mapToOrderResponse(order);
     }

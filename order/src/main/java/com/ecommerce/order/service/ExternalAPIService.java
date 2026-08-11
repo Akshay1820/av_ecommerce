@@ -13,6 +13,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class ExternalAPIService {
@@ -59,4 +61,15 @@ public class ExternalAPIService {
             throw new RuntimeException("Product service is unavailable", e);
         }
     }
+
+    /*
+        Deduct stock quantity from the the product
+     */
+    public void clearStockQuantity(Long productId, Integer quantity) {
+        ProductResponse productResponse = getProductData(productId);
+        Integer remainingStockQuantity = productResponse.getStockQuantity() - quantity;
+        String url = productServiceUrl + "/stock/" + productId + "?stockQuantity=" + remainingStockQuantity;
+        restTemplate.put(url, null, String.class);
+    }
+
 }

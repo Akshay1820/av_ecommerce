@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -18,14 +19,14 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public ProductResponse createProduct(ProductRequest productRequest){
-        Product product=new Product();
-        mapToProduct(product,productRequest);
+    public ProductResponse createProduct(ProductRequest productRequest) {
+        Product product = new Product();
+        mapToProduct(product, productRequest);
         productRepository.save(product);
         return mapToProductResponse(product);
     }
 
-    private Product mapToProduct(Product product,ProductRequest productRequest){
+    private Product mapToProduct(Product product, ProductRequest productRequest) {
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());
@@ -36,43 +37,43 @@ public class ProductService {
         return product;
     }
 
-    private ProductResponse mapToProductResponse(Product product){
-       return ProductResponse.builder()
-               .id(product.getId())
-               .name(product.getName())
-               .description(product.getDescription())
-               .price(product.getPrice())
-               .stockQuantity(product.getStockQuantity())
-               .category(product.getCategory())
-               .imageUrl(product.getImageUrl())
-               .active(product.getActive())
-               .build();
+    private ProductResponse mapToProductResponse(Product product) {
+        return ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stockQuantity(product.getStockQuantity())
+                .category(product.getCategory())
+                .imageUrl(product.getImageUrl())
+                .active(product.getActive())
+                .build();
     }
 
     public ProductResponse getProductById(Long id) {
         return productRepository.findById(id)
                 .map(this::mapToProductResponse)
-                .orElseThrow(()->new ResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
     }
 
-    public  List<ProductResponse> getAllProducst() {
+    public List<ProductResponse> getAllProducst() {
         return productRepository.findByActiveTrue()
                 .stream()
                 .map(this::mapToProductResponse)
                 .collect(Collectors.toList());
     }
 
-    public ProductResponse updateProduct(Long id,ProductRequest productRequest) {
-        Product product=productRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Product not found"));
-        mapToProduct(product,productRequest);
+    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        mapToProduct(product, productRequest);
         productRepository.save(product);
         return mapToProductResponse(product);
     }
 
     public void deleteProduct(Long id) {
-        Product product=productRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Product not found"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         productRepository.delete(product);
     }
 
@@ -81,6 +82,12 @@ public class ProductService {
                 .stream()
                 .map(this::mapToProductResponse)
                 .collect(Collectors.toList());
+    }
 
+    public void setStockQuantity(Long id, Integer stockQuantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        product.setStockQuantity(stockQuantity);
+        productRepository.save(product);
     }
 }
