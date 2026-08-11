@@ -5,7 +5,7 @@ on:
     types: opened
 
 jobs:
-  say-hello:
+  pipeline started:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,4 +15,4 @@ jobs:
       - name: Build Order Service
         run: |
           cd order
-          mvn clean package -DskipTests
+          mvn clean compile
