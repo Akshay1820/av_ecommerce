@@ -9,5 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: PR created
-        run: echo "PR is created and pipeline is started"
+      - name: Get source code
+        uses: actions/checkout@v4
+
+      - name: check files
+        run: ls -lah
