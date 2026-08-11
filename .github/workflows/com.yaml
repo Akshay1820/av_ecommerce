@@ -23,3 +23,11 @@ jobs:
       - name: Build Order Service
         working-directory: order
         run: mvn clean compile
+
+      - name: Build Product Service
+        working-directory: product
+        run: mvn clean compile
+
+      - name: Build User Service
+        working-directory: user
+        run: mvn clean compile
