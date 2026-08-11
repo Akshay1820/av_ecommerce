@@ -5,12 +5,14 @@ on:
     types: opened
 
 jobs:
-  say-hello:
+  pipeline started:
     runs-on: ubuntu-latest
 
     steps:
       - name: Get source code
         uses: actions/checkout@v4
 
-      - name: check files
-        run: ls -lah
+      - name: Build Order Service
+        run: |
+          cd order
+          mvn clean compile
