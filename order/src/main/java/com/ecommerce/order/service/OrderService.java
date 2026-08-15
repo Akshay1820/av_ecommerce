@@ -3,6 +3,7 @@ package com.ecommerce.order.service;
 
 import com.ecommerce.order.dto.OrderItemDTO;
 import com.ecommerce.order.dto.OrderResponse;
+import com.ecommerce.order.dto.UserResponse;
 import com.ecommerce.order.model.CartItem;
 import com.ecommerce.order.model.OrderStatus;
 import com.ecommerce.order.model.Order;
@@ -20,10 +21,11 @@ public class OrderService {
 
     private final CartItemService cartItemService;
     private final OrderRepository orderRepository;
+    private final ExternalAPIService apiService;
 
     public OrderResponse createOrder(String userId) {
 
-//        User user= getUser(Long.parseLong(userId));
+        UserResponse userResponse=validateUser(userId);
 
         // Validate for cart items
         List<CartItem> cartItemList = cartItemService.getCart(userId);
@@ -51,6 +53,11 @@ public class OrderService {
         cartItemService.clearCartForUser(userId);
 
         return mapToOrderResponse(order);
+    }
+
+    private UserResponse validateUser(String userId) {
+        UserResponse userResponse = apiService.getUser(userId);
+        return userResponse;
     }
 
     private OrderResponse mapToOrderResponse(Order order) {

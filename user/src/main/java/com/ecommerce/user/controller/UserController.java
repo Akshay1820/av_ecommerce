@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-public class UseController {
+public class UserController {
 
     private final UserService userService;
 
@@ -25,7 +25,6 @@ public class UseController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(@PathVariable String id){
        return ResponseEntity.ok(userService.getUserById(id));
-
     }
 
     @PostMapping()

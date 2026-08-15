@@ -51,16 +51,15 @@ public class CartItemService {
     }
 
     private void validateProduct(CartItemRequest request, ProductResponse productResponse) {
-
-        if(Objects.nonNull(productResponse.getActive()) &&
-                Boolean.FALSE.equals(productResponse.getActive())){
-            throw new ProductInValidException("Product "+request.getProductId()+" is invalid");
+        if (Objects.nonNull(productResponse.getActive()) &&
+                Boolean.FALSE.equals(productResponse.getActive())) {
+            throw new ProductInValidException("Product " + request.getProductId() + " is invalid");
         }
 
-        int availableStockQuantity=productResponse.getStockQuantity();
-        int requestedStockQuantity=request.getQuantity();
-        if(availableStockQuantity<requestedStockQuantity){
-            throw new ProductOutOfStockException("Product "+request.getProductId()+" is out of stock");
+        int availableStockQuantity = productResponse.getStockQuantity();
+        int requestedStockQuantity = request.getQuantity();
+        if (availableStockQuantity < requestedStockQuantity) {
+            throw new ProductOutOfStockException("Product " + request.getProductId() + " is out of stock");
         }
     }
 

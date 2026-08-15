@@ -15,6 +15,9 @@ spring:
 product:
   service:
     url: http://localhost:8083/api/product
+user:
+  service:
+    url: http://localhost:8082/api/users
 
 server:
   port: ${ORDER_PORT}
