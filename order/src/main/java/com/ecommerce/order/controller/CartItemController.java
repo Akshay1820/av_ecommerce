@@ -18,18 +18,18 @@ public class CartItemController {
     private final CartItemService cartItemService;
 
     @PostMapping
-    public ResponseEntity<String > createCart(
+    public ResponseEntity<String> createCart(
             @RequestHeader("X-User-ID") String userId,
-            @RequestBody CartItemRequest request){
-        cartItemService.addToCart(userId,request);
+            @RequestBody CartItemRequest request) {
+        cartItemService.addToCart(userId, request);
         return ResponseEntity.ok("Cart added");
     }
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<String> deleteCartItem(
             @RequestHeader("X-User-ID") String userId,
-            @PathVariable String productId){
-        cartItemService.deleteCartItem(userId,productId);
+            @PathVariable String productId) {
+        cartItemService.deleteCartItem(userId, productId);
         return ResponseEntity.ok("Item is removed from the cart");
     }
 

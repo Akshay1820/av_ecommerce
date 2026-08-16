@@ -22,10 +22,9 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(
-            @RequestHeader("X-User-Id") String userId){
-        OrderResponse order=orderService.createOrder(userId);
+            @RequestHeader("X-User-Id") String userId) {
+        OrderResponse order = orderService.createOrder(userId);
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
-
 
 }

@@ -51,4 +51,11 @@ public class ProductController {
                productService.searchProduct(search));
     }
 
+    @PutMapping("/stock/{id}")
+    public ResponseEntity<String> setStockQuantity(@PathVariable Long id,
+                                                   @RequestParam Integer stockQuantity) {
+        productService.setStockQuantity(id, stockQuantity);
+        return ResponseEntity.ok("Stock quantity updated.....");
+    }
+
 }
