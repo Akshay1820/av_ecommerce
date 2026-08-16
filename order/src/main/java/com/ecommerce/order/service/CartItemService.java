@@ -32,25 +32,24 @@ public class CartItemService {
         utilService.validateUser(userId);
 
         //validate product
-        ProductResponse productResponse=apiService.getProductData(Long.parseLong(
+        ProductResponse productResponse = apiService.getProductData(Long.parseLong(
                 request.getProductId()));
-        utilService.validateProduct(request,productResponse);
+        validateProduct(userId, request, productResponse);
 
         // checking whether the product is already added to card by the user if yes add the quantity
-        CartItem cartItem=cartItemRepository.findByProductIdAndUserId(request.getProductId(),userId)
+        CartItem cartItem = cartItemRepository.findByProductIdAndUserId(request.getProductId(), userId)
                 .orElse(new CartItem());
         cartItem.setProductId(request.getProductId());
         cartItem.setUserId(userId);
 
-        if(Objects.nonNull(cartItem.getQuantity())){
-            Integer totalQuantity=Integer.sum(cartItem.getQuantity(), request.getQuantity());
+        if (Objects.nonNull(cartItem.getQuantity())) {
+            Integer totalQuantity = Integer.sum(cartItem.getQuantity(), request.getQuantity());
             cartItem.setQuantity(totalQuantity);
-            BigDecimal  totalProductPrice= BigDecimal.valueOf(totalQuantity).multiply(productResponse.getPrice());
+            BigDecimal totalProductPrice = BigDecimal.valueOf(totalQuantity).multiply(productResponse.getPrice());
             cartItem.setPrice(totalProductPrice);
-        }
-        else{
+        } else {
             cartItem.setQuantity(request.getQuantity());
-            BigDecimal  totalProductPrice= BigDecimal.valueOf(request.getQuantity()).multiply(productResponse.getPrice());
+            BigDecimal totalProductPrice = BigDecimal.valueOf(request.getQuantity()).multiply(productResponse.getPrice());
             cartItem.setPrice(totalProductPrice);
         }
 
@@ -62,14 +61,14 @@ public class CartItemService {
 //        Product product= productRepository.findById(productId)
 //                .orElseThrow(()->new ResourceNotFoundException("Product not found"));
 
-        Optional<CartItem> cartItem = cartItemRepository.findByProductIdAndUserId(productId,userId);
-        if(Objects.nonNull(cartItem)){
+        Optional<CartItem> cartItem = cartItemRepository.findByProductIdAndUserId(productId, userId);
+        if (Objects.nonNull(cartItem)) {
             cartItemRepository.delete(cartItem.get());
         }
 
     }
 
-    public void clearCartForUser(String userId){
+    public void clearCartForUser(String userId) {
         cartItemRepository.deleteCartItemByUserId(userId);
     }
 
@@ -82,16 +81,38 @@ public class CartItemService {
 
     }
 
-    public List<CartItem> getCart(String userId){
+    public List<CartItem> getCart(String userId) {
         return cartItemRepository.findAllByUserId(userId);
     }
 
-    private CartItemResponse mapToCartResponse(CartItem cartItem, String userId){
+    private CartItemResponse mapToCartResponse(CartItem cartItem, String userId) {
         return CartItemResponse.builder()
                 .id(cartItem.getId())
                 .userId(userId)
+                .productId(cartItem.getProductId())
                 .quantity(cartItem.getQuantity())
                 .price(cartItem.getPrice())
                 .build();
+    }
+
+    public void validateProduct(String userId, CartItemRequest request, ProductResponse productResponse) {
+        if (Objects.nonNull(productResponse.getActive()) &&
+                Boolean.FALSE.equals(productResponse.getActive())) {
+            throw new ProductInValidException("Product " + request.getProductId() + " is invalid");
+        }
+
+        int availableStockQuantity = productResponse.getStockQuantity();
+        int requestedStockQuantity = request.getQuantity();
+        List<CartItemResponse> cartItemResponseList = getCartOfUser(userId);
+        Optional<CartItemResponse> cartItemResponseOptional = cartItemResponseList.stream()
+                .filter(cartItem -> cartItem.getProductId().equals(request.getProductId()))
+                .findFirst();
+        int finalRequestedQuantity = requestedStockQuantity;
+        if (cartItemResponseOptional.isPresent()) {
+            finalRequestedQuantity += cartItemResponseOptional.get().getQuantity();
+        }
+        if (availableStockQuantity < finalRequestedQuantity) {
+            throw new ProductOutOfStockException("Product " + request.getProductId() + " is out of stock");
+        }
     }
 }
