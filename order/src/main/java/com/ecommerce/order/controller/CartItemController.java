@@ -4,6 +4,7 @@ package com.ecommerce.order.controller;
 import com.ecommerce.order.dto.CartItemRequest;
 import com.ecommerce.order.dto.CartItemResponse;
 import com.ecommerce.order.service.CartItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class CartItemController {
     @PostMapping
     public ResponseEntity<String> createCart(
             @RequestHeader("X-User-ID") String userId,
-            @RequestBody CartItemRequest request) {
+            @Valid @RequestBody CartItemRequest request) {
         cartItemService.addToCart(userId, request);
         return ResponseEntity.ok("Cart added");
     }
