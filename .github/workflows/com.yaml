@@ -47,40 +47,26 @@ jobs:
   docker:
     needs: build
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - order
+          - product
+          - user
+
     steps:
       - name: Checking our source code to get the dockerfile
         uses: actions/checkout@v4
 
-      - name: Download artifact
+      - name: Download artifact for all services
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.ORDER_ARTIFACT_NAME }}
-          path: order/target/
+          name: ${{ matrix.service }}-service-jar
+          path: ${{ matrix.service }}/target/
 
-      - name: Building docker image for order service
-        working-directory: order
+      - name: Building docker image for all service
+        working-directory: ${{ matrix.service }}
         run: |
-          docker build -t ${{ env.ORDER_DOCKER_IMAGE }} .
-
-      - name: Download artifact for User
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.USER_ARTIFACT_NAME }}
-          path: user/target/
-
-      - name: Building docker image for user service
-        working-directory: user
-        run: |
-          docker build -t ${{ env.USER_DOCKER_IMAGE }} .
-
-      - name: Download artifact for Product
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.PRODUCT_ARTIFACT_NAME }}
-          path: product/target/
-
-      - name: Building docker image for product service
-        working-directory: product
-        run: |
-          docker build -t ${{ env.PRODUCT_DOCKER_IMAGE }} .
+          docker build -t ${{ matrix.service }}-service .
           docker images
