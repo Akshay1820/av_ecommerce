@@ -86,3 +86,20 @@ jobs:
       - name: Pushing image to docker hub
         if: ${{ github.event_name == 'push' }}
         run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}-service:${{ github.sha }}
+
+  deploy:
+    needs: docker
+    if: ${{ github.event_name == 'push' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            echo "Login to the VPS"
