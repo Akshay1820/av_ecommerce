@@ -93,6 +93,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        service:
+          - order
+          - product
+          - user
+
     steps:
       - name: Login to VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -103,3 +110,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             echo "Login to the VPS"
+      - name: Pulling docker images
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}-service:${{ github.sha }}
+          docker images
