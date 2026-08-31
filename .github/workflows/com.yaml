@@ -73,7 +73,7 @@ jobs:
       - name: Building docker image for all service
         working-directory: ${{ matrix.service }}
         run: |
-          docker build -t ${{ matrix.service }}-service:${{ github.sha }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}-service:${{ github.sha }} .
           docker images
 
       - name: Docker Login
