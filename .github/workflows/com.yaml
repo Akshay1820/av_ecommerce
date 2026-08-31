@@ -8,8 +8,12 @@ env:
   USER_ARTIFACT_NAME: user-service-jar
   PRODUCT_ARTIFACT_NAME: product-service-jar
 
+  ORDER_DOCKER_IMAGE: order-service
+  USER_DOCKER_IMAGE: user-service
+  PRODUCT_DOCKER_IMAGE: product-service
+
 jobs:
-  pipeline_started:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -52,3 +56,44 @@ jobs:
         with:
           name: ${{ env.USER_ARTIFACT_NAME }}
           path: user/target/*.jar
+
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checking our source code to get the dockerfile
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ORDER_ARTIFACT_NAME }}
+          path: order/target/
+
+      - name: Building docker image for order service
+        working-directory: order
+        run: |
+          docker build -t ${{ env.ORDER_DOCKER_IMAGE }} .
+
+      - name: Download artifact for User
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.USER_ARTIFACT_NAME }}
+          path: user/target/
+
+      - name: Building docker image for user service
+        working-directory: user
+        run: |
+          docker build -t ${{ env.USER_DOCKER_IMAGE }} .
+
+      - name: Download artifact for Product
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PRODUCT_ARTIFACT_NAME }}
+          path: product/target/
+
+      - name: Building docker image for product service
+        working-directory: product
+        run: |
+          docker build -t ${{ env.PRODUCT_DOCKER_IMAGE }} .
+          docker images
