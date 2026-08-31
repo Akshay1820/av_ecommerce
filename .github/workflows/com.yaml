@@ -27,6 +27,14 @@ jobs:
           java-version: '17'
           cache: maven
 
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Build Order Service
         working-directory: order
         run: mvn clean package -DskipTests
@@ -37,6 +45,14 @@ jobs:
           name: ${{ env.ORDER_ARTIFACT_NAME }}
           path: order/target/*.jar
 
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Build Product Service
         working-directory: product
         run: mvn clean package -DskipTests
@@ -46,6 +62,14 @@ jobs:
         with:
           name: ${{ env.PRODUCT_ARTIFACT_NAME }}
           path: product/target/*.jar
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
       - name: Build User Service
         working-directory: user
