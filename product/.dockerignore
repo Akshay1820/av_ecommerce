@@ -1,0 +1,9 @@
+src/
+.idea/
+.git/
+.github/
+.mvn/
+*.md
+pom.xml
+mvnw
+mvnw.cmd
