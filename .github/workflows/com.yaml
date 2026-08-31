@@ -3,6 +3,11 @@ name: Ecommerce Pipeline
 on:
   pull_request:
 
+env:
+  ORDER_ARTIFACT_NAME: order-service-jar
+  USER_ARTIFACT_NAME: user-service-jar
+  PRODUCT_ARTIFACT_NAME: product-service-jar
+
 jobs:
   pipeline_started:
     runs-on: ubuntu-latest
@@ -20,12 +25,30 @@ jobs:
 
       - name: Build Order Service
         working-directory: order
-        run: mvn clean compile
+        run: mvn clean package -DskipTests
+
+      - name: Uploading order service jar as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ORDER_ARTIFACT_NAME }}
+          path: order/target/*.jar
 
       - name: Build Product Service
         working-directory: product
-        run: mvn clean compile
+        run: mvn clean package -DskipTests
+
+      - name: Uploading product service jar as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PRODUCT_ARTIFACT_NAME }}
+          path: product/target/*.jar
 
       - name: Build User Service
         working-directory: user
-        run: mvn clean compile
+        run: mvn clean package -DskipTests
+
+      - name: Uploading user service jar as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.USER_ARTIFACT_NAME }}
+          path: user/target/*.jar
