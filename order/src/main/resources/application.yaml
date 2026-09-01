@@ -14,10 +14,10 @@ spring:
 
 product:
   service:
-    url: http://localhost:8083/api/product
+    url: ${PRODUCT_SERVICE_URL}
 user:
   service:
-    url: http://localhost:8082/api/users
+    url: ${USER_SERVICE_URL}
 
 server:
   port: ${ORDER_PORT}
